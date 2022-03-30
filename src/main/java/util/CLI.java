@@ -8,13 +8,14 @@ import java.util.List;
 
 public class CLI implements Runnable, IObservableCLI{
     private final BufferedReader inputReader;
-    private final PrintWriter outputWriter;
-    private boolean state = true;
+    private final OutputStreamWriter outputWriter;
+    private boolean state;
     private List<IObserverServer> observers;
 
     public CLI(InputStream inputStream, OutputStream outputStream) {
         this.inputReader = new BufferedReader(new InputStreamReader(inputStream));
-        this.outputWriter = new PrintWriter(outputStream);
+        this.outputWriter = new OutputStreamWriter(outputStream);
+        state = false;
         observers = new ArrayList<>();
     }
 
@@ -24,7 +25,7 @@ public class CLI implements Runnable, IObservableCLI{
 
         while(!command.equals("shutdown")) {
             try {
-                outputWriter.println("Enter command:");
+                outputWriter.write("Enter command: ");
                 outputWriter.flush();
 
                 command = inputReader.readLine();
@@ -32,18 +33,17 @@ public class CLI implements Runnable, IObservableCLI{
                 if(command.equals("start")) {
                     setState(true);
                 }
-                else if(command.equals("stop")) {
+                else if(command.equals("shutdown")) {
                     inputReader.close();
+                    outputWriter.close();
                     setState(false);
                 }
                 else {
-                    outputWriter.println("wrong command");
+                    outputWriter.write("wrong command\n");
                 }
 
             } catch (Exception e) {
                 e.printStackTrace();
-            } finally {
-                outputWriter.close();
             }
         }
     }
